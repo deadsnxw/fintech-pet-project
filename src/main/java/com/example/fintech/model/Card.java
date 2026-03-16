@@ -4,6 +4,7 @@ import lombok.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.util.UUID;
+import java.time.LocalDate;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,7 +23,7 @@ public class Card {
 
 	@NotNull
 	@Column
-	private String expirationDate;
+	private LocalDate expirationDate;
 
 	@NotNull
 	@ManyToOne

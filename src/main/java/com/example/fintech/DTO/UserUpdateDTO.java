@@ -7,7 +7,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 @Builder
-public class UserDTO {
+public class UserUpdateDTO {
 	private UUID id;
 	private String firstName;
 	private String lastName;
