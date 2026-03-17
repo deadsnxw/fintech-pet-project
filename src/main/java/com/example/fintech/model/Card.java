@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.util.UUID;
 import java.time.LocalDate;
+import java.math.BigDecimal;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,6 +25,10 @@ public class Card {
 	@NotNull
 	@Column
 	private LocalDate expirationDate;
+
+	@NotNull
+	@Column
+	private BigDecimal balance;
 
 	@NotNull
 	@ManyToOne
