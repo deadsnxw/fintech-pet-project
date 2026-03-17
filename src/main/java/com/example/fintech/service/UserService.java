@@ -1,10 +1,13 @@
 package com.example.fintech.service;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.fintech.model.User;
 import com.example.fintech.DTO.UserDTO;
 import com.example.fintech.DTO.UserCreationDTO;
 import com.example.fintech.DTO.UserUpdateDTO;
 import com.example.fintech.repository.UserRepository;
+import com.example.fintech.repository.CardRepository;
 import org.springframework.stereotype.Service;
 import java.util.UUID;
 import java.util.List;
@@ -12,9 +15,11 @@ import java.util.List;
 @Service
 public class UserService {
   private final UserRepository userRepository;
+  private final CardRepository cardRepository;
 
-  public UserService(UserRepository userRepository) {
+  public UserService(UserRepository userRepository, CardRepository cardRepository) {
         this.userRepository = userRepository;
+        this.cardRepository = cardRepository;
     }
 
   public UserDTO createUser(UserCreationDTO dto) {
@@ -62,9 +67,17 @@ public class UserService {
   public UserDTO updateUser(UUID id, UserUpdateDTO dto) {
     User user = userRepository.findById(id).orElseThrow();
 
-    user.setFirstName(dto.getFirstName());
-    user.setLastName(dto.getLastName());
-    user.setPhoneNumber(dto.getPhoneNumber());
+    if(dto.getFirstName() != null) {
+      user.setFirstName(dto.getFirstName());
+    }
+
+    if(dto.getLastName() != null) {
+      user.setLastName(dto.getLastName());
+    }
+
+    if(dto.getPhoneNumber() != null) {
+      user.setPhoneNumber(dto.getPhoneNumber());
+    }
 
     User saved = userRepository.save(user);
 
@@ -76,7 +89,9 @@ public class UserService {
       .build();
   }
 
+  @Transactional
   public void deleteUser(UUID id) {
+    cardRepository.deleteAllByUserId(id);
     userRepository.deleteById(id);
   }
 }
