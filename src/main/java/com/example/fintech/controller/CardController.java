@@ -3,6 +3,7 @@ package com.example.fintech.controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 import java.util.UUID;
+import jakarta.validation.Valid;
 
 import com.example.fintech.service.CardService;
 import com.example.fintech.DTO.CardDTO;
@@ -19,7 +20,7 @@ public class CardController {
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public CardDTO createCard(@RequestBody CardCreationDTO dto) {
+	public CardDTO createCard(@Valid @RequestBody CardCreationDTO dto) {
 		return cardService.createCard(dto);
 	}
 

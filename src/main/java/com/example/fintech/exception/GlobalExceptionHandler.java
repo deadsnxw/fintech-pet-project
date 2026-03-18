@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.NoSuchElementException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -34,5 +35,11 @@ public class GlobalExceptionHandler {
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ApiError handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
 		return new ApiError(400, "Wrong parameter type in URL");
+	}
+
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ApiError handleNotValid(MethodArgumentNotValidException ex) {
+		return new ApiError(400, ex.getBindingResult().getFieldError().getDefaultMessage());
 	}
 }

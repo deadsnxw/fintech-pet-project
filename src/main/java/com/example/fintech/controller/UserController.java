@@ -10,6 +10,7 @@ import com.example.fintech.DTO.UserUpdateDTO;
 import java.util.UUID;
 import java.util.List;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/users")
@@ -33,12 +34,12 @@ public class UserController {
 	}
 
 	@PostMapping
-	public UserDTO createUser(@RequestBody UserCreationDTO dto) {
+	public UserDTO createUser(@Valid @RequestBody UserCreationDTO dto) {
 		return userService.createUser(dto);
 	}
 
 	@PatchMapping("/{id}")
-	public UserDTO updateUser(@PathVariable UUID id, @RequestBody UserUpdateDTO dto) {
+	public UserDTO updateUser(@PathVariable UUID id, @Valid @RequestBody UserUpdateDTO dto) {
 		return userService.updateUser(id, dto);
 	}
 
