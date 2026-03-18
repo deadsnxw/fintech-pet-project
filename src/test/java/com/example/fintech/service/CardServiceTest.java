@@ -17,6 +17,7 @@ import java.util.Optional;
 import com.example.fintech.model.Card;
 import com.example.fintech.DTO.CardDTO;
 import com.example.fintech.DTO.CardCreationDTO;
+import com.example.fintech.mapper.CardMapper;
 import com.example.fintech.repository.CardRepository;
 import com.example.fintech.repository.UserRepository;
 import com.example.fintech.model.User;
@@ -29,6 +30,9 @@ public class CardServiceTest {
 	@Mock
 	private UserRepository userRepository;
 
+	@Mock
+	private CardMapper cardMapper;
+
 	@InjectMocks
 	private CardService cardService;
 
@@ -38,6 +42,13 @@ public class CardServiceTest {
 		CardCreationDTO dto = new CardCreationDTO(uuid);
 		User user = User.builder().id(uuid).build();
 
+		CardDTO expectedDto = CardDTO.builder()
+				.number("1234567891113156")
+				.expirationDate(LocalDate.of(2030, Month.AUGUST, 16))
+				.balance(BigDecimal.valueOf(2000))
+				.userId(uuid)
+				.build();
+
 		Card card = Card.builder()
 			.number("1234567891113156")
 			.expirationDate(LocalDate.of(2030, Month.AUGUST, 16))
@@ -45,7 +56,10 @@ public class CardServiceTest {
 			.user(user)
 			.build();
 
+		when(cardMapper.toDto(any())).thenReturn(expectedDto);
+
 		when(userRepository.findById(any())).thenReturn(Optional.of(user));
+
 		when(cardRepository.save(any())).thenReturn(card);
 
 		CardDTO result = cardService.createCard(dto);

@@ -8,6 +8,7 @@ import com.example.fintech.DTO.UserCreationDTO;
 import com.example.fintech.DTO.UserUpdateDTO;
 import com.example.fintech.repository.UserRepository;
 import com.example.fintech.repository.CardRepository;
+import com.example.fintech.mapper.UserMapper;
 import org.springframework.stereotype.Service;
 import java.util.UUID;
 import java.util.List;
@@ -17,51 +18,32 @@ public class UserService {
   private final UserRepository userRepository;
   private final CardRepository cardRepository;
 
-  public UserService(UserRepository userRepository, CardRepository cardRepository) {
+  private final UserMapper userMapper;
+
+  public UserService(UserRepository userRepository, CardRepository cardRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.cardRepository = cardRepository;
+        this.userMapper = userMapper;
     }
 
   public UserDTO createUser(UserCreationDTO dto) {
-    User user = User.builder()
-        .firstName(dto.getFirstName())
-        .lastName(dto.getLastName())
-        .phoneNumber(dto.getPhoneNumber())
-        .password(dto.getPassword())
-        .build();
+    User user = userMapper.toEntity(dto);
 
     User saved = userRepository.save(user);
 
-    return UserDTO.builder()
-      .id(saved.getId())
-      .firstName(saved.getFirstName())
-      .lastName(saved.getLastName())
-      .phoneNumber(saved.getPhoneNumber())
-      .build();
+    return userMapper.toDto(saved);
   }
 
   public List<UserDTO> getAllUsers() {
-      List<User> users = userRepository.findAll();
-
-      return users.stream()
-        .map(user -> UserDTO.builder()
-          .id(user.getId())
-          .firstName(user.getFirstName())
-          .lastName(user.getLastName())
-          .phoneNumber(user.getPhoneNumber())
-          .build())
-        .toList();
+      return userRepository.findAll().stream()
+              .map(userMapper::toDto)
+              .toList();
   }
 
   public UserDTO getUserById(UUID id) {
-    User user = userRepository.findById(id).orElseThrow();
-
-    return UserDTO.builder()
-      .id(user.getId())
-      .firstName(user.getFirstName())
-      .lastName(user.getLastName())
-      .phoneNumber(user.getPhoneNumber())
-      .build();
+    return userRepository.findById(id)
+        .map(userMapper::toDto)
+        .orElseThrow(() -> new RuntimeException("User not found"));
   }
 
   public UserDTO updateUser(UUID id, UserUpdateDTO dto) {
@@ -81,12 +63,7 @@ public class UserService {
 
     User saved = userRepository.save(user);
 
-    return UserDTO.builder()
-      .id(saved.getId())
-      .firstName(saved.getFirstName())
-      .lastName(saved.getLastName())
-      .phoneNumber(saved.getPhoneNumber())
-      .build();
+    return userMapper.toDto(saved);
   }
 
   @Transactional

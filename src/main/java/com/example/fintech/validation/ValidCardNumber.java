@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = CardNumberValidator.class)
-public interface ValidCardNumber {
+public @interface ValidCardNumber {
 	String message() default "Wrong card number";
 
 	Class<?>[] groups() default {};
