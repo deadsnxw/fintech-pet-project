@@ -53,7 +53,7 @@ public class CardControllerTest {
 
 		CardDTO responseDto = CardDTO.builder()
 			.id(cardId)
-			.number("1234567812345678")
+			.number("4242424242424242")
 			.balance(BigDecimal.ZERO)
 			.expirationDate(LocalDate.now().plusYears(4))
 			.userId(userId)
@@ -66,7 +66,7 @@ public class CardControllerTest {
 						.content(objectMapper.writeValueAsString(requestDto)))
 				.andExpect(status().isCreated())
 				.andExpect(jsonPath("$.id").value(cardId.toString()))
-				.andExpect(jsonPath("$.number").value("1234567812345678"));
+				.andExpect(jsonPath("$.number").value("4242424242424242"));
 	}
 
 

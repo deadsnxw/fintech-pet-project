@@ -15,6 +15,10 @@ public class CardNumberValidator implements ConstraintValidator<ValidCardNumber,
 
 		cardNumber = cardNumber.replaceAll("\\D", "");
 
+		if(cardNumber.length() != 16) {
+			return false;
+		}
+
 		int sum = 0;
 		boolean isSecond = false;
 			

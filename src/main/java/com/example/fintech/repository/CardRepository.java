@@ -15,4 +15,6 @@ public interface CardRepository extends JpaRepository<Card, UUID> {
 	void deleteAllByUserId(UUID userId);
 
 	boolean existsByNumber(String number);
+
+	Optional<Card> findByNumber(String number);
 }
