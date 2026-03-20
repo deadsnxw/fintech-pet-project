@@ -4,11 +4,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.fintech.model.Card;
 import com.example.fintech.DTO.TransferRequestDTO;
+import com.example.fintech.DTO.DepositRequestDTO;
 import com.example.fintech.repository.CardRepository;
 import org.springframework.stereotype.Service;
 import java.util.UUID;
 import java.util.List;
 import java.math.BigDecimal;
+import java.util.NoSuchElementException;
 
 @Service
 public class TransactionService {
@@ -21,10 +23,10 @@ public class TransactionService {
 	@Transactional
 	public void transfer(TransferRequestDTO request) {
 		UUID senderId = request.getFromCardId();
-		Card senderCard = cardRepository.findById(senderId).orElseThrow();
+		Card senderCard = cardRepository.findById(senderId).orElseThrow(() -> new NoSuchElementException("Resource not found in the database"));
 
 		String receiverPan = request.getToCardNumber();
-		Card receiverCard = cardRepository.findByNumber(receiverPan).orElseThrow();
+		Card receiverCard = cardRepository.findByNumber(receiverPan).orElseThrow(() -> new NoSuchElementException("Resource not found in the database"));
 
 		BigDecimal amountToTransfer = request.getAmount();
 		BigDecimal receiverBalance = receiverCard.getBalance();
@@ -42,5 +44,21 @@ public class TransactionService {
 
 		cardRepository.save(senderCard);
 		cardRepository.save(receiverCard);  
+	}
+
+	@Transactional
+	public void deposit(DepositRequestDTO request) {
+		String receiverPan = request.getToCardNumber();
+		Card receiverCard = cardRepository.findByNumber(receiverPan).orElseThrow(() -> new NoSuchElementException("Resource not found in the database"));
+
+		BigDecimal amountToDeposit = request.getAmount();
+		BigDecimal receiverBalance = receiverCard.getBalance();
+
+
+		receiverBalance = receiverBalance.add(amountToDeposit);
+
+		receiverCard.setBalance(receiverBalance);
+
+		cardRepository.save(receiverCard);
 	}
 }

@@ -20,6 +20,7 @@ import com.example.fintech.repository.CardRepository;
 import com.example.fintech.service.TransactionService;
 import com.example.fintech.DTO.TransferRequestDTO;
 import com.example.fintech.DTO.CardCreationDTO;
+import com.example.fintech.DTO.DepositRequestDTO;
 
 @ExtendWith(MockitoExtension.class)
 public class TransactionServiceTest {
@@ -43,13 +44,13 @@ public class TransactionServiceTest {
 
 		Card receiverCard = Card.builder()
 				.id(receiverCardId)
-				.number("4242424242424242")
+				.number(receiverPan)
 				.balance(BigDecimal.valueOf(100))
 				.build();
 
 		TransferRequestDTO request = TransferRequestDTO.builder()
 							.fromCardId(senderCardId)
-							.toCardNumber("4242424242424242")
+							.toCardNumber(receiverPan)
 							.amount(BigDecimal.valueOf(500))
 							.build();
 
@@ -79,13 +80,13 @@ public class TransactionServiceTest {
 
 		Card receiverCard = Card.builder()
 				.id(receiverCardId)
-				.number("4242424242424242")
+				.number(receiverPan)
 				.balance(BigDecimal.valueOf(100))
 				.build();
 
 		TransferRequestDTO request = TransferRequestDTO.builder()
 							.fromCardId(senderCardId)
-							.toCardNumber("4242424242424242")
+							.toCardNumber(receiverPan)
 							.amount(BigDecimal.valueOf(500))
 							.build();
 
@@ -99,5 +100,98 @@ public class TransactionServiceTest {
 		verify(cardRepository, never()).save(any(Card.class));
 
 		assertEquals("Not enough money", exception.getMessage());
+	}
+
+	@Test
+	public void shouldThrowExceptionReceiverNotFound() {
+		UUID senderCardId = UUID.randomUUID();
+		UUID receiverCardId = UUID.randomUUID();
+
+		String receiverPan = "4242424242424242";
+		String wrongPan = "4141410000000003";
+
+
+		Card senderCard = Card.builder()
+				.id(senderCardId)
+				.balance(BigDecimal.valueOf(200))
+				.build();
+
+		Card receiverCard = Card.builder()
+				.id(receiverCardId)
+				.number(wrongPan)
+				.balance(BigDecimal.valueOf(100))
+				.build();
+
+		TransferRequestDTO request = TransferRequestDTO.builder()
+							.fromCardId(senderCardId)
+							.toCardNumber(wrongPan)
+							.amount(BigDecimal.valueOf(10))
+							.build();
+
+		when(cardRepository.findById(senderCardId)).thenReturn(Optional.of(senderCard));
+		when(cardRepository.findByNumber(wrongPan)).thenReturn(Optional.empty());
+
+		RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+			transactionService.transfer(request);
+		});
+
+		verify(cardRepository, never()).save(any(Card.class));
+
+		assertEquals("Resource not found in the database", exception.getMessage());
+	}
+
+	@Test
+	public void shouldDepositSuccessfully() {
+		UUID receiverCardId = UUID.randomUUID();
+
+		String receiverPan = "4242424242424242";
+
+		Card receiverCard = Card.builder()
+				.id(receiverCardId)
+				.number(receiverPan)
+				.balance(BigDecimal.valueOf(0))
+				.build();
+
+		DepositRequestDTO request = DepositRequestDTO.builder()
+							.toCardNumber(receiverPan)
+							.amount(BigDecimal.valueOf(100))
+							.build();
+
+		when(cardRepository.findByNumber(receiverPan)).thenReturn(Optional.of(receiverCard));
+
+		transactionService.deposit(request);
+
+		verify(cardRepository).save(receiverCard);
+
+		assertEquals(BigDecimal.valueOf(100), receiverCard.getBalance());
+	}
+
+	@Test
+	public void shouldThrowExceptionCardNotFoundWhileDepositing() {
+		UUID receiverCardId = UUID.randomUUID();
+
+		String receiverPan = "4242424242424242";
+		String wrongPan = "4141410000000003";
+
+		Card receiverCard = Card.builder()
+				.id(receiverCardId)
+				.number(receiverPan)
+				.balance(BigDecimal.valueOf(0))
+				.build();
+
+		DepositRequestDTO request = DepositRequestDTO.builder()
+							.toCardNumber(wrongPan)
+							.amount(BigDecimal.valueOf(100))
+							.build();
+
+		when(cardRepository.findByNumber(wrongPan)).thenReturn(Optional.empty());
+
+		RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+			transactionService.deposit(request);
+		});
+
+		verify(cardRepository, never()).save(any(Card.class));
+
+		assertEquals("Resource not found in the database", exception.getMessage());
 	}
 }

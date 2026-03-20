@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 
 import com.example.fintech.service.TransactionService;
 import com.example.fintech.DTO.TransferRequestDTO;
+import com.example.fintech.DTO.DepositRequestDTO;
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -21,5 +22,11 @@ public class TransactionController {
 	public String transfer(@Valid @RequestBody TransferRequestDTO dto) {
 		transactionService.transfer(dto);
 		return "Transfer Successful !";
+	}
+
+	@PostMapping("/deposit")
+	public String deposit(@Valid @RequestBody DepositRequestDTO dto) {
+		transactionService.deposit(dto);
+		return "Deposit Successful !";
 	}
 }
