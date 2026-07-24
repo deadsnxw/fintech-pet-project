@@ -2,6 +2,8 @@ package com.example.fintech.controller;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import java.util.UUID;
 import jakarta.validation.Valid;
 
@@ -19,17 +21,20 @@ public class CardController {
 	}
 
 	@PostMapping
+	@PreAuthorize("hasRole('ADMIN') or #dto.userId == authentication.principal.id")
 	@ResponseStatus(HttpStatus.CREATED)
 	public CardDTO createCard(@Valid @RequestBody CardCreationDTO dto) {
 		return cardService.createCard(dto);
 	}
 
 	@GetMapping("/{id}")
+	@PreAuthorize("hasRole('ADMIN') or @cardAuthChecker.isOwner(#id, authentication)")
 	public CardDTO getCardById(@PathVariable UUID id) {
 		return cardService.getCardById(id);
 	}
 
 	@DeleteMapping("/{id}")
+	@PreAuthorize("hasRole('ADMIN') or @cardAuthChecker.isOwner(#id, authentication)")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void deleteCard(@PathVariable UUID id) {
 		cardService.deleteCard(id);

@@ -2,6 +2,7 @@ package com.example.fintech.security;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,7 +22,7 @@ public class UserPrincipal implements UserDetails {
         return List.of(new SimpleGrantedAuthority(user.getRole().name()));
     }
 
-   @Override
+    @Override
     public String getPassword() {
         return user.getPassword();
     }
@@ -29,6 +30,10 @@ public class UserPrincipal implements UserDetails {
     @Override
     public String getUsername() {
         return user.getEmail();
+    }
+
+    public UUID getId() {
+        return user.getId();
     }
 
     @Override

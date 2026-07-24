@@ -11,6 +11,7 @@ import java.util.UUID;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
@@ -26,11 +27,13 @@ public class UserController {
 	}
 
 	@GetMapping
+	@PreAuthorize("hasRole('ADMIN')")
 	public List<UserDTO> getAllUsers() {
 		return userService.getAllUsers();
 	}
 
 	@GetMapping("/{id}")
+	@PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
 	public UserDTO getUserById(@PathVariable UUID id) {
 		return userService.getUserById(id);
 	}
@@ -41,17 +44,20 @@ public class UserController {
 	}
 
 	@PatchMapping("/{id}")
+	@PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
 	public UserDTO updateUser(@PathVariable UUID id, @Valid @RequestBody UserUpdateDTO dto) {
 		return userService.updateUser(id, dto);
 	}
 
 	@DeleteMapping("/{id}")
+	@PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void deleteUser(@PathVariable UUID id) {
 		userService.deleteUser(id);
 	}
 
 	@GetMapping("/{id}/cards")
+	@PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
 	public List<CardDTO> getAllUserCards(@PathVariable UUID id) {
 		return cardService.getAllUserCards(id);
 	}
