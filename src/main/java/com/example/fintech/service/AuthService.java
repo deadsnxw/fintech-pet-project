@@ -2,13 +2,13 @@ package com.example.fintech.service;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.fintech.DTO.AuthRequestDTO;
 import com.example.fintech.DTO.AuthResponseDTO;
 import com.example.fintech.DTO.UserCreationDTO;
+import com.example.fintech.exception.ResourceNotFoundException;
 import com.example.fintech.mapper.UserMapper;
 import com.example.fintech.model.Role;
 import com.example.fintech.model.User;
@@ -54,7 +54,7 @@ public class AuthService {
         );
 
         User user = userRepository.findByEmail(dto.getEmail())
-            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User"));
 
         String token = jwtService.generateToken(new UserPrincipal(user));
         return new AuthResponseDTO(token);

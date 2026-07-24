@@ -1,6 +1,7 @@
 package com.example.fintech.exception;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -59,5 +60,11 @@ public class GlobalExceptionHandler {
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ApiError handleSameCardTransferException(SameCardTransferException ex) {
 		return new ApiError(400, ex.getMessage());
+	}
+
+	@ExceptionHandler(BadCredentialsException.class)
+	@ResponseStatus(HttpStatus.UNAUTHORIZED)
+	public ApiError handleBadCredentialsException(BadCredentialsException ex) {
+		return new ApiError(401, ex.getMessage());
 	}
 }

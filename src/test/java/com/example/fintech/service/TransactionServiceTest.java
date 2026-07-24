@@ -18,6 +18,8 @@ import java.util.Optional;
 import com.example.fintech.model.Card;
 import com.example.fintech.repository.CardRepository;
 import com.example.fintech.DTO.TransferRequestDTO;
+import com.example.fintech.exception.InsufficientFundsException;
+import com.example.fintech.exception.ResourceNotFoundException;
 import com.example.fintech.DTO.DepositRequestDTO;
 
 @ExtendWith(MockitoExtension.class)
@@ -91,13 +93,13 @@ public class TransactionServiceTest {
 		when(cardRepository.findById(senderCardId)).thenReturn(Optional.of(senderCard));
 		when(cardRepository.findByNumber(receiverPan)).thenReturn(Optional.of(receiverCard));
 
-		RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+		InsufficientFundsException exception = assertThrows(InsufficientFundsException.class, () -> {
 			transactionService.transfer(request);
 		});
 
 		verify(cardRepository, never()).save(any(Card.class));
 
-		assertEquals("Not enough money", exception.getMessage());
+		assertEquals("Not enough money on the card", exception.getMessage());
 	}
 
 	@Test
@@ -129,13 +131,13 @@ public class TransactionServiceTest {
 		when(cardRepository.findById(senderCardId)).thenReturn(Optional.of(senderCard));
 		when(cardRepository.findByNumber(wrongPan)).thenReturn(Optional.empty());
 
-		RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+		ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
 			transactionService.transfer(request);
 		});
 
 		verify(cardRepository, never()).save(any(Card.class));
 
-		assertEquals("Resource not found in the database", exception.getMessage());
+		assertEquals("Receiver card not found", exception.getMessage());
 	}
 
 	@Test
@@ -184,12 +186,12 @@ public class TransactionServiceTest {
 
 		when(cardRepository.findByNumber(wrongPan)).thenReturn(Optional.empty());
 
-		RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+		ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
 			transactionService.deposit(request);
 		});
 
 		verify(cardRepository, never()).save(any(Card.class));
 
-		assertEquals("Resource not found in the database", exception.getMessage());
+		assertEquals("Receiver card not found", exception.getMessage());
 	}
 }

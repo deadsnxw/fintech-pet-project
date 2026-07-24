@@ -19,6 +19,10 @@ public class UserCreationDTO {
 	private String lastName;
 
 	@NotBlank(message = "This field can't be empty")
+	@Email(message = "Wrong email format")
+	private String email;
+
+	@NotBlank(message = "This field can't be empty")
 	@Pattern(regexp = "^\\+?[0-9]{10,13}$", message = "Wrong phone number format")
 	private String phoneNumber;
 

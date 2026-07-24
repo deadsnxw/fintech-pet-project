@@ -84,11 +84,13 @@ public class UserControllerIntegrationTest {
         UUID id = UUID.randomUUID();
         String firstName = "Alex";
         String lastName = "Mercer";
+        String email = "alex.mercer@example.com";
         String phoneNumber = "1234567890";
         String password = "qwerty12345";
         UserCreationDTO user = UserCreationDTO.builder()
             .firstName(firstName)
             .lastName(lastName)
+            .email(email)
             .phoneNumber(phoneNumber)
             .password(password)
             .build();

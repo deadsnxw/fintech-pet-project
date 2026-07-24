@@ -38,7 +38,7 @@ public class UserServiceTest {
 					.phoneNumber("123456789")
 					.build();
 
-		UserCreationDTO dto = new UserCreationDTO("Max", "Verstappen", "123456789", "123456");
+		UserCreationDTO dto = new UserCreationDTO("Max", "Verstappen", "max.verstappen@example.com", "123456789", "123456");
 		
 		User user = User.builder()
 		    .firstName("Max")

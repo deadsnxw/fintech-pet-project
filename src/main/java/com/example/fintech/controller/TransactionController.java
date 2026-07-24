@@ -1,8 +1,6 @@
 package com.example.fintech.controller;
 
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.HttpStatus;
-import java.util.UUID;
 import jakarta.validation.Valid;
 
 import com.example.fintech.service.TransactionService;
