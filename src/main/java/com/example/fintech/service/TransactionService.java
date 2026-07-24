@@ -4,13 +4,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.fintech.model.Card;
 import com.example.fintech.DTO.TransferRequestDTO;
+import com.example.fintech.exception.InsufficientFundsException;
+import com.example.fintech.exception.ResourceNotFoundException;
+import com.example.fintech.exception.SameCardTransferException;
 import com.example.fintech.DTO.DepositRequestDTO;
 import com.example.fintech.repository.CardRepository;
 import org.springframework.stereotype.Service;
 import java.util.UUID;
-import java.util.List;
 import java.math.BigDecimal;
-import java.util.NoSuchElementException;
 
 @Service
 public class TransactionService {
@@ -23,24 +24,25 @@ public class TransactionService {
 	@Transactional
 	public void transfer(TransferRequestDTO request) {
 		UUID senderId = request.getFromCardId();
-		Card senderCard = cardRepository.findById(senderId).orElseThrow(() -> new NoSuchElementException("Resource not found in the database"));
+		Card senderCard = cardRepository.findById(senderId)
+			.orElseThrow(() -> new ResourceNotFoundException("Sender card"));
 
 		String receiverPan = request.getToCardNumber();
-		Card receiverCard = cardRepository.findByNumber(receiverPan).orElseThrow(() -> new NoSuchElementException("Resource not found in the database"));
+		Card receiverCard = cardRepository.findByNumber(receiverPan)
+			.orElseThrow(() -> new ResourceNotFoundException("Receiver card"));
 
-		BigDecimal amountToTransfer = request.getAmount();
-		BigDecimal receiverBalance = receiverCard.getBalance();
-		BigDecimal senderBalance = senderCard.getBalance();
-
-		if(senderBalance.compareTo(amountToTransfer) < 0) {
-			throw new RuntimeException("Not enough money");
+		if (senderCard.getId().equals(receiverCard.getId())) {
+			throw new SameCardTransferException();
 		}
 
-		senderBalance = senderBalance.subtract(amountToTransfer);
-		receiverBalance = receiverBalance.add(amountToTransfer);
+		BigDecimal amountToTransfer = request.getAmount();
 
-		senderCard.setBalance(senderBalance);
-		receiverCard.setBalance(receiverBalance);
+		if(senderCard.getBalance().compareTo(amountToTransfer) < 0) {
+			throw new InsufficientFundsException();
+		}
+
+		senderCard.setBalance(senderCard.getBalance().subtract(amountToTransfer));
+		receiverCard.setBalance(receiverCard.getBalance().add(amountToTransfer));
 
 		cardRepository.save(senderCard);
 		cardRepository.save(receiverCard);  
@@ -49,7 +51,8 @@ public class TransactionService {
 	@Transactional
 	public void deposit(DepositRequestDTO request) {
 		String receiverPan = request.getToCardNumber();
-		Card receiverCard = cardRepository.findByNumber(receiverPan).orElseThrow(() -> new NoSuchElementException("Resource not found in the database"));
+		Card receiverCard = cardRepository.findByNumber(receiverPan)
+			.orElseThrow(() -> new ResourceNotFoundException("Receiver card"));
 
 		BigDecimal amountToDeposit = request.getAmount();
 		BigDecimal receiverBalance = receiverCard.getBalance();

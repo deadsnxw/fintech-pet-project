@@ -3,6 +3,7 @@ package com.example.fintech.service;
 import com.example.fintech.model.User;
 import com.example.fintech.model.Card;
 import com.example.fintech.DTO.CardDTO;
+import com.example.fintech.exception.ResourceNotFoundException;
 import com.example.fintech.DTO.CardCreationDTO;
 import com.example.fintech.repository.CardRepository;
 import com.example.fintech.repository.UserRepository;
@@ -28,7 +29,8 @@ public class CardService {
 	}
 
 	public CardDTO createCard(CardCreationDTO dto) {
-		User user = userRepository.findById(dto.getUserId()).orElseThrow();
+		User user = userRepository.findById(dto.getUserId())
+			.orElseThrow(() -> new ResourceNotFoundException("User"));
 
 		LocalDate expirationDate = LocalDate.now().plusYears(4);
 
@@ -56,7 +58,7 @@ public class CardService {
 	public CardDTO getCardById(UUID id) {
 		return cardRepository.findById(id)
 				.map(cardMapper::toDto)
-				.orElseThrow(() -> new RuntimeException("Card not found"));
+				.orElseThrow(() -> new ResourceNotFoundException("Card"));
 	}
 
 	public List<CardDTO> getAllUserCards(UUID userId) {

@@ -6,6 +6,7 @@ import com.example.fintech.model.User;
 import com.example.fintech.DTO.UserDTO;
 import com.example.fintech.DTO.UserCreationDTO;
 import com.example.fintech.DTO.UserUpdateDTO;
+import com.example.fintech.exception.ResourceNotFoundException;
 import com.example.fintech.repository.UserRepository;
 import com.example.fintech.repository.CardRepository;
 import com.example.fintech.mapper.UserMapper;
@@ -43,11 +44,12 @@ public class UserService {
   public UserDTO getUserById(UUID id) {
     return userRepository.findById(id)
         .map(userMapper::toDto)
-        .orElseThrow(() -> new RuntimeException("User not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("User"));
   }
 
   public UserDTO updateUser(UUID id, UserUpdateDTO dto) {
-    User user = userRepository.findById(id).orElseThrow();
+    User user = userRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("User"));
 
     if(dto.getFirstName() != null) {
       user.setFirstName(dto.getFirstName());

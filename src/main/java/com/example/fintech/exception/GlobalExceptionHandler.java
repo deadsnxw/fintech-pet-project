@@ -42,4 +42,22 @@ public class GlobalExceptionHandler {
 	public ApiError handleNotValid(MethodArgumentNotValidException ex) {
 		return new ApiError(400, ex.getBindingResult().getFieldError().getDefaultMessage());
 	}
+
+	@ExceptionHandler(ResourceNotFoundException.class)
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	public ApiError handleResourceNotFoundException(ResourceNotFoundException ex) {
+		return new ApiError(404, ex.getMessage());
+	}
+
+	@ExceptionHandler(InsufficientFundsException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ApiError handleInsufficientFundsException(InsufficientFundsException ex) {
+		return new ApiError(400, ex.getMessage());
+	}
+
+	@ExceptionHandler(SameCardTransferException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ApiError handleSameCardTransferException(SameCardTransferException ex) {
+		return new ApiError(400, ex.getMessage());
+	}
 }
